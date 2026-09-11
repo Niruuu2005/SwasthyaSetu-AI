@@ -58,3 +58,13 @@ npm run dev
 ```
 
 Demo login (seed): phone `9000000001` / password `ChangeMeDemo123!`
+
+### Hosted frontend (Vercel)
+
+- Production: https://swasthyasetu-frontend-nine.vercel.app  
+- GitHub auto-deploy connected to `Niruuu2005/SwasthyaSetu-AI` (set Vercel **Root Directory** to `frontend` if Git builds fail)  
+- Set `VITE_API_BASE_URL` in Vercel → Environment Variables to your public backend URL, then **Redeploy** (Vite embeds env at build time)
+
+### Render
+
+See [`docs/frontend/RENDER_DEPLOY.md`](docs/frontend/RENDER_DEPLOY.md).
