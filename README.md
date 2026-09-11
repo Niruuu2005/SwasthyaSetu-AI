@@ -59,12 +59,12 @@ npm run dev
 
 Demo login (seed): phone `9000000001` / password `ChangeMeDemo123!`
 
-### Hosted frontend (Vercel)
+### Production deploy
 
-- Production: https://swasthyasetu-frontend-nine.vercel.app  
-- GitHub auto-deploy connected to `Niruuu2005/SwasthyaSetu-AI` (set Vercel **Root Directory** to `frontend` if Git builds fail)  
-- Set `VITE_API_BASE_URL` in Vercel → Environment Variables to your public backend URL, then **Redeploy** (Vite embeds env at build time)
+| Layer | Host | Notes |
+|-------|------|--------|
+| Frontend | [Vercel](https://swasthyasetu-frontend-nine.vercel.app) | Set `VITE_API_BASE_URL` to the Render API URL, then redeploy |
+| Backend | Render Web Service | Blueprint: [`render.yaml`](render.yaml) — see [`docs/backend/RENDER_DEPLOY.md`](docs/backend/RENDER_DEPLOY.md) |
+| Database | Render Postgres | Linked via `DATABASE_URL` |
 
-### Render
-
-See [`docs/frontend/RENDER_DEPLOY.md`](docs/frontend/RENDER_DEPLOY.md).
+Optional static frontend on Render: [`docs/frontend/RENDER_DEPLOY.md`](docs/frontend/RENDER_DEPLOY.md).

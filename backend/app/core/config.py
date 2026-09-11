@@ -1,7 +1,25 @@
 from functools import lru_cache
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _normalize_async_db_url(url: str) -> str:
+    if url.startswith("postgres://"):
+        return "postgresql+asyncpg://" + url.removeprefix("postgres://")
+    if url.startswith("postgresql://"):
+        return "postgresql+asyncpg://" + url.removeprefix("postgresql://")
+    return url
+
+
+def _to_sync_db_url(url: str) -> str:
+    if "+asyncpg://" in url:
+        return url.replace("+asyncpg://", "+psycopg2://", 1)
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg2://" + url.removeprefix("postgres://")
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg2://" + url.removeprefix("postgresql://")
+    return url
 
 
 class Settings(BaseSettings):
@@ -12,7 +30,7 @@ class Settings(BaseSettings):
     secret_key: str = Field(alias="SECRET_KEY")
     access_token_expire_minutes: int = Field(default=480, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
     database_url: str = Field(alias="DATABASE_URL")
-    database_url_sync: str = Field(alias="DATABASE_URL_SYNC")
+    database_url_sync: str | None = Field(default=None, alias="DATABASE_URL_SYNC")
     cors_origins: str = Field(default="http://localhost:3000", alias="CORS_ORIGINS")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     llm_provider: str = Field(default="mock", alias="LLM_PROVIDER")
@@ -30,6 +48,17 @@ class Settings(BaseSettings):
         if len(value) < 24:
             raise ValueError("SECRET_KEY must be at least 24 characters")
         return value
+
+    @model_validator(mode="after")
+    def normalize_database_urls(self) -> "Settings":
+        object.__setattr__(self, "database_url", _normalize_async_db_url(self.database_url))
+        sync = self.database_url_sync
+        if not sync:
+            sync = _to_sync_db_url(self.database_url)
+        else:
+            sync = _to_sync_db_url(sync)
+        object.__setattr__(self, "database_url_sync", sync)
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:

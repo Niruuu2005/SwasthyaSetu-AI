@@ -1,18 +1,39 @@
-# Optional Render Blueprint — Static Site for the Vite frontend
-# Dashboard alternative steps are in docs/frontend/RENDER_DEPLOY.md
+# Render Blueprint — FastAPI backend + Postgres
+# Frontend is deployed on Vercel: https://swasthyasetu-frontend-nine.vercel.app
+#
+# Dashboard: New → Blueprint → connect Niruuu2005/SwasthyaSetu-AI → apply this file.
+# After first deploy, confirm CORS_ORIGINS includes your Vercel URL.
+
+databases:
+  - name: swasthyasetu-db
+    plan: free
+    databaseName: swasthyasetu
+    user: swasthyasetu
+
 services:
   - type: web
-    name: swasthyasetu-frontend
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    name: swasthyasetu-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/v1/health
+    autoDeployTrigger: commit
     envVars:
-      - key: VITE_API_BASE_URL
-        sync: false
-      - key: VITE_DISTRICT_ID
-        value: demo-district
+      - key: APP_ENV
+        value: production
+      - key: LLM_PROVIDER
+        value: mock
+      - key: SEED_DEMO_PASSWORD
+        value: ChangeMeDemo123!
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: https://swasthyasetu-frontend-nine.vercel.app,http://localhost:5173,http://localhost:3000
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swasthyasetu-db
+          property: connectionString
