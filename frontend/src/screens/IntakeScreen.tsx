@@ -23,69 +23,68 @@ export const IntakeScreen: React.FC<IntakeScreenProps> = ({
   showToast,
   pendingOfflineCount = 0,
 }) => {
-  const [name, setName] = useState(patient.name || 'Sunita Bai');
-  const [age, setAge] = useState(patient.age || '42 yrs');
-  const [sex, setSex] = useState(patient.sex || 'Female (स्त्री)');
-  const [village, setVillage] = useState(patient.village || 'Rampur Cluster B');
-  const [narrative, setNarrative] = useState(
-    patient.clinicalNarrative ||
-      'Patient collapsed 20 mins ago, unconscious and not responding to verbal stimuli. Shallow breathing, cold extremities.'
-  );
+  const [name, setName] = useState(patient.name || '');
+  const [age, setAge] = useState(patient.age || '');
+  const [sex, setSex] = useState(patient.sex || '');
+  const [village, setVillage] = useState(patient.village || '');
+  const [narrative, setNarrative] = useState(patient.clinicalNarrative || '');
   const [isRecording, setIsRecording] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Web Speech API / Bhashini Simulation
   const toggleRecording = () => {
     if (!isRecording) {
       setIsRecording(true);
-      showToast(language === 'hi' ? 'भाषिणी माइक्रोफोन खुला...' : 'Bhashini microphone stream opened...');
+      showToast(language === 'hi' ? 'माइक्रोफोन खुला...' : 'Microphone opened...');
 
-      // Check for browser SpeechRecognition
-      const windowSpeech = (window as unknown as {
+      const windowSpeech = window as unknown as {
         SpeechRecognition?: any;
         webkitSpeechRecognition?: any;
-      });
-      const SpeechRecognition = windowSpeech.SpeechRecognition || windowSpeech.webkitSpeechRecognition;
+      };
+      const SpeechRecognitionCtor =
+        windowSpeech.SpeechRecognition || windowSpeech.webkitSpeechRecognition;
 
-      if (SpeechRecognition) {
-        try {
-          const recognizer = new SpeechRecognition();
-          recognizer.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
-          recognizer.continuous = false;
-          recognizer.interimResults = false;
-          recognizer.onresult = (e: any) => {
-            const transcript = e.results[0][0].transcript;
-            setNarrative((prev) => (prev ? `${prev} ${transcript}` : transcript));
-            setIsRecording(false);
-            showToast('Voice transcribed: ' + transcript);
-          };
-          recognizer.onerror = () => {
-            fallbackSpeechSim();
-          };
-          recognizer.start();
-          return;
-        } catch {
-          fallbackSpeechSim();
-        }
-      } else {
-        fallbackSpeechSim();
+      if (!SpeechRecognitionCtor) {
+        setIsRecording(false);
+        showToast(
+          language === 'hi'
+            ? 'इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है।'
+            : 'Voice input is not available in this browser.',
+        );
+        return;
+      }
+
+      try {
+        const recognizer = new SpeechRecognitionCtor();
+        recognizer.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+        recognizer.continuous = false;
+        recognizer.interimResults = false;
+        recognizer.onresult = (e: any) => {
+          const transcript = e.results[0][0].transcript;
+          setNarrative((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          setIsRecording(false);
+          showToast('Voice transcribed: ' + transcript);
+        };
+        recognizer.onerror = () => {
+          setIsRecording(false);
+          showToast(
+            language === 'hi'
+              ? 'वॉइस रिकॉर्डिंग विफल। कृपया लिखकर दर्ज करें।'
+              : 'Voice capture failed. Please type the narrative.',
+          );
+        };
+        recognizer.start();
+      } catch {
+        setIsRecording(false);
+        showToast(
+          language === 'hi'
+            ? 'वॉइस इनपुट शुरू नहीं हो सका।'
+            : 'Could not start voice input.',
+        );
       }
     } else {
       setIsRecording(false);
-      showToast(language === 'hi' ? 'आवाज़ रिकॉर्डिंग बंद।' : 'Speech transcribed to local notes.');
+      showToast(language === 'hi' ? 'आवाज़ रिकॉर्डिंग बंद।' : 'Recording stopped.');
     }
-  };
-
-  const fallbackSpeechSim = () => {
-    setTimeout(() => {
-      setIsRecording(false);
-      const simulatedPhrase =
-        language === 'hi'
-          ? 'अचानक बेहोशी, सांस लेने में अत्यधिक कठिनाई, हाथ-पैर ठंडे पड़ गए हैं।'
-          : 'Sudden collapse, unresponsive, rapid weak pulse, cold clammy extremities noted.';
-      setNarrative((prev) => (prev ? `${prev}. ${simulatedPhrase}` : simulatedPhrase));
-      showToast(language === 'hi' ? 'भाषिणी: आवाज़ अनुवादित होकर नोट हो गई।' : 'Bhashini: Speech transcribed to local notes.');
-    }, 2800);
   };
 
   const handleAddSymptomChip = (chipText: string) => {

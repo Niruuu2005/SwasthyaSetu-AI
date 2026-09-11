@@ -23,7 +23,19 @@ async def seed() -> None:
     async with db.SessionLocal() as session:
         existing = await session.execute(select(User).limit(1))
         if existing.scalar_one_or_none():
-            print("Seed skipped: users already present")
+            # Align display names for known demo phones without resetting passwords.
+            renames = {
+                "9000000001": "Sunita Devi",
+                "9000000003": "Ramesh MO",
+                "9000000004": "Dr. Verma",
+            }
+            for phone, name in renames.items():
+                row = await session.execute(select(User).where(User.phone == phone))
+                user = row.scalar_one_or_none()
+                if user and user.name != name:
+                    user.name = name
+            await session.commit()
+            print("Seed skipped create; synced demo display names if needed")
             return
 
         facilities = [
@@ -71,7 +83,7 @@ async def seed() -> None:
         users = [
             User(
                 role=UserRole.asha,
-                name="ASHA Meera",
+                name="Sunita Devi",
                 phone="9000000001",
                 password_hash=password_hash,
                 district_id=DISTRICT,
@@ -86,7 +98,7 @@ async def seed() -> None:
             ),
             User(
                 role=UserRole.facility_staff,
-                name="DH Intake Desk",
+                name="Ramesh MO",
                 phone="9000000003",
                 password_hash=password_hash,
                 district_id=DISTRICT,
@@ -94,7 +106,7 @@ async def seed() -> None:
             ),
             User(
                 role=UserRole.cdmo,
-                name="CDMO Demo",
+                name="Dr. Verma",
                 phone="9000000004",
                 password_hash=password_hash,
                 district_id=DISTRICT,

@@ -26,7 +26,7 @@ services:
       - key: LLM_PROVIDER
         value: mock
       - key: SEED_DEMO_PASSWORD
-        value: ChangeMeDemo123!
+        sync: false
       - key: LOG_LEVEL
         value: INFO
       - key: CORS_ORIGINS

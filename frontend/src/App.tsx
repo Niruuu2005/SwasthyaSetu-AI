@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AppScreen, Facility, Language, PatientRecord, ReferralTokenData, UserProfile } from './types';
-import { DEMO_PROFILES, INITIAL_PATIENT } from './data/mockData';
+import { EMPTY_PATIENT, GUEST_USER } from './data/mockData';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { ToastNotification } from './components/ToastNotification';
@@ -38,10 +38,10 @@ import {
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('login');
-  const [currentUser, setCurrentUser] = useState<UserProfile>(DEMO_PROFILES[0]);
+  const [currentUser, setCurrentUser] = useState<UserProfile>(GUEST_USER);
   const [language, setLanguage] = useState<Language>('en');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [patientRecord, setPatientRecord] = useState<PatientRecord>(INITIAL_PATIENT);
+  const [patientRecord, setPatientRecord] = useState<PatientRecord>(EMPTY_PATIENT);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [referralToken, setReferralToken] = useState<ReferralTokenData | null>(null);
@@ -119,6 +119,9 @@ export default function App() {
 
   const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
+    setPatientRecord(EMPTY_PATIENT);
+    setReferralToken(null);
+    setFacilities([]);
     showToast(`Logged in as ${user.name} (${user.roleTag})`);
     void flushOfflineQueue();
     if (user.role === 'cdmo') {
@@ -132,6 +135,11 @@ export default function App() {
 
   const handleSignOut = () => {
     logout();
+    setCurrentUser(GUEST_USER);
+    setPatientRecord(EMPTY_PATIENT);
+    setReferralToken(null);
+    setFacilities([]);
+    setDashboard(null);
     setCurrentScreen('login');
     showToast('Signed out');
   };
@@ -281,10 +289,6 @@ export default function App() {
             isOnline={isOnline}
             onToggleOnline={handleToggleOnline}
             currentUser={currentUser}
-            onSelectUser={(u) => {
-              showToast('Use Sign Out + login for role changes (JWT required)');
-              setCurrentUser(u);
-            }}
             onSignOut={handleSignOut}
           />
 
@@ -324,7 +328,6 @@ export default function App() {
               <DispatchTrackerScreen
                 patient={patientRecord}
                 currentUser={currentUser}
-                onSelectUser={(u) => setCurrentUser(u)}
                 showToast={showToast}
                 referralToken={referralToken}
                 onConfirmArrival={

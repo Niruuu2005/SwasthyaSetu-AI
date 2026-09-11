@@ -146,14 +146,14 @@ export const TriageScreen: React.FC<TriageScreenProps> = ({
         {/* Immediate Vitals Snapshot Graphic */}
         <div className="grid grid-cols-3 gap-space-xs">
           <div className="bg-surface-container-lowest p-space-sm rounded-xl flex flex-col shadow-sm border border-surface-container-high">
-            <div className="flex items-center justify-between text-error">
+            <div className="flex items-center justify-between text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">favorite</span>
-              <span className="font-label-sm text-label-sm bg-error-container text-on-error-container px-1 py-0.2 rounded font-bold">
-                {patient.vitals.hrStatus}
+              <span className="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-1 py-0.2 rounded font-bold">
+                {patient.vitals.hr ? patient.vitals.hrStatus : 'N/A'}
               </span>
             </div>
             <span className="font-headline-sm text-headline-sm text-on-surface font-bold mt-1">
-              {patient.vitals.hr}
+              {patient.vitals.hr || '—'}
             </span>
             <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
               HR (BPM)
@@ -161,29 +161,29 @@ export const TriageScreen: React.FC<TriageScreenProps> = ({
           </div>
 
           <div className="bg-surface-container-lowest p-space-sm rounded-xl flex flex-col shadow-sm border border-surface-container-high">
-            <div className="flex items-center justify-between text-error">
+            <div className="flex items-center justify-between text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">air</span>
-              <span className="font-label-sm text-label-sm bg-error-container text-on-error-container px-1 py-0.2 rounded font-bold">
-                {patient.vitals.spo2Status}
+              <span className="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-1 py-0.2 rounded font-bold">
+                {patient.vitals.spo2 ? patient.vitals.spo2Status : 'N/A'}
               </span>
             </div>
             <span className="font-headline-sm text-headline-sm text-on-surface font-bold mt-1">
-              {patient.vitals.spo2}%
+              {patient.vitals.spo2 ? `${patient.vitals.spo2}%` : '—'}
             </span>
             <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-              SpO₂ On Room Air
+              SpO₂ (if recorded)
             </span>
           </div>
 
           <div className="bg-surface-container-lowest p-space-sm rounded-xl flex flex-col shadow-sm border border-surface-container-high">
-            <div className="flex items-center justify-between text-tertiary">
+            <div className="flex items-center justify-between text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">speed</span>
-              <span className="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-1 py-0.2 rounded font-bold">
-                {patient.vitals.bpStatus}
+              <span className="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-1 py-0.2 rounded font-bold">
+                {patient.vitals.bp !== '—' ? patient.vitals.bpStatus : 'N/A'}
               </span>
             </div>
             <span className="font-headline-sm text-headline-sm text-on-surface font-bold mt-1">
-              {patient.vitals.bp}
+              {patient.vitals.bp || '—'}
             </span>
             <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
               BP (mmHg)
@@ -203,38 +203,39 @@ export const TriageScreen: React.FC<TriageScreenProps> = ({
               </h3>
             </div>
             <span className="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full font-semibold">
-              2 Rules Triggered
+              {patient.rulesTriggered.length} Rules Triggered
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <div className="bg-error-container text-on-error-container p-space-xs rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[18px] text-error shrink-0">
-                  emergency
-                </span>
-                <span className="font-label-sm text-label-sm font-bold truncate">
-                  Rule RF-04: Acute Unconsciousness / Unresponsive
-                </span>
-              </div>
-              <span className="font-label-sm text-label-sm bg-surface-container-lowest text-error px-2 py-0.5 rounded shrink-0 font-bold">
-                HARD STOP
-              </span>
-            </div>
-
-            <div className="bg-error-container text-on-error-container p-space-xs rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-[18px] text-error shrink-0">
-                  airwave
-                </span>
-                <span className="font-label-sm text-label-sm font-bold truncate">
-                  Rule RF-12: Compromised Respiration (&lt;90% SpO₂)
-                </span>
-              </div>
-              <span className="font-label-sm text-label-sm bg-surface-container-lowest text-error px-2 py-0.5 rounded shrink-0 font-bold">
-                O₂ PROTOCOL
-              </span>
-            </div>
+            {patient.rulesTriggered.length === 0 ? (
+              <p className="font-body-sm text-body-sm text-on-surface-variant px-1">
+                No deterministic rule hits returned for this triage result.
+              </p>
+            ) : (
+              patient.rulesTriggered.map((rule) => (
+                <div
+                  key={rule.code}
+                  className={`${
+                    rule.severity === 'critical'
+                      ? 'bg-error-container text-on-error-container'
+                      : 'bg-tertiary-fixed text-on-tertiary-fixed'
+                  } p-space-xs rounded-lg flex items-center justify-between`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="material-symbols-outlined text-[18px] text-error shrink-0">
+                      emergency
+                    </span>
+                    <span className="font-label-sm text-label-sm font-bold truncate">
+                      {rule.code}: {rule.title}
+                    </span>
+                  </div>
+                  <span className="font-label-sm text-label-sm bg-surface-container-lowest text-error px-2 py-0.5 rounded shrink-0 font-bold">
+                    {rule.badge}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="bg-surface-container-low p-space-sm rounded-lg flex items-start gap-space-xs mt-1 border border-surface-container-high">
@@ -293,7 +294,7 @@ export const TriageScreen: React.FC<TriageScreenProps> = ({
           </div>
         </div>
 
-        {/* Simulated 108 Emergency Dispatch Notification Box */}
+        {/* Pathway notice — Tier-2 108 is simulated */}
         <div className="bg-surface-container-high rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs border border-surface-container-highest">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-space-xs">
@@ -302,30 +303,30 @@ export const TriageScreen: React.FC<TriageScreenProps> = ({
               </div>
               <div className="flex flex-col">
                 <span className="font-label-sm text-label-sm text-primary-container uppercase font-bold tracking-wider">
-                  Tele-EMS Auto-Link
+                  Referral pathway
                 </span>
                 <span className="font-title-md text-title-md text-on-surface font-bold">
-                  108 Dispatch Alert Logged
+                  {patient.triageLevel === 'RED_FLAG'
+                    ? 'Escalate via facility referral token'
+                    : 'Continue clinical workflow'}
                 </span>
               </div>
             </div>
             <span className="font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed px-2 py-1 rounded font-bold shrink-0">
-              DEMO ACTIVE
+              {patient.decisionSource === 'rule_engine' ? 'RULE ENGINE' : 'ADVISORY'}
             </span>
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-            Facility Notification Dispatched to <strong className="text-on-surface">{patient.dispatchAlert.desk}</strong> and District Civil Hospital. Ambulance en route triage tag {patient.dispatchAlert.ambulanceTag}.
+            {patient.dispatchAlert.desk}. Live 108 / EMS dispatch is not connected in this build
+            ({patient.dispatchAlert.ambulanceTag}).
           </p>
           <div className="mt-2 flex items-center justify-between pt-2 text-on-surface-variant border-t border-surface-container">
             <div className="flex items-center gap-1 font-label-sm text-label-sm">
               <span className="material-symbols-outlined text-[16px] text-primary">
-                sensors
+                fact_check
               </span>
-              <span>Telemetry Stream Synchronized</span>
+              <span>Source: {patient.reasoningSummary || patient.aiAdvisory || 'triage result'}</span>
             </div>
-            <span className="font-label-sm text-label-sm font-bold text-primary-container">
-              ETA: {patient.dispatchAlert.etaMinutes} mins
-            </span>
           </div>
         </div>
 

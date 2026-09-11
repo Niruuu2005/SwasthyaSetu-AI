@@ -57,7 +57,11 @@ npm install
 npm run dev
 ```
 
-Demo login (seed): phone `9000000001` / password `ChangeMeDemo123!`
+Demo login (seed accounts; password from `SEED_DEMO_PASSWORD`, default `ChangeMeDemo123!` — never baked into the UI):
+
+- ASHA `9000000001`
+- Facility `9000000003`
+- CDMO `9000000004`
 
 ### Production deploy
 

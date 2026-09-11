@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppScreen, Language, UserProfile } from '../types';
-import { ASSETS, DEMO_PROFILES } from '../data/mockData';
+import { ASSETS } from '../data/mockData';
 
 interface HeaderProps {
   currentScreen: AppScreen;
@@ -10,7 +10,6 @@ interface HeaderProps {
   isOnline: boolean;
   onToggleOnline: () => void;
   currentUser: UserProfile;
-  onSelectUser: (user: UserProfile) => void;
   onSignOut: () => void;
 }
 
@@ -22,7 +21,6 @@ export const Header: React.FC<HeaderProps> = ({
   isOnline,
   onToggleOnline,
   currentUser,
-  onSelectUser,
   onSignOut
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -139,36 +137,12 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
 
                 <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider px-2 py-1">
-                  Switch Demo Role:
+                  Session
                 </p>
-                <div className="flex flex-col gap-1">
-                  {DEMO_PROFILES.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => {
-                        onSelectUser(p);
-                        setShowUserMenu(false);
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors ${
-                        p.id === currentUser.id
-                          ? 'bg-primary-container text-on-primary font-bold'
-                          : 'hover:bg-surface-container-high text-on-surface'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="material-symbols-outlined text-[16px]">
-                          {p.avatarIcon}
-                        </span>
-                        <div className="truncate">
-                          <p className="truncate font-semibold">{p.name}</p>
-                          <p className="text-[10px] opacity-80">{p.location}</p>
-                        </div>
-                      </div>
-                      <span className="text-[9px] uppercase px-1 py-0.5 rounded bg-surface-container-highest/60">
-                        {p.roleTag}
-                      </span>
-                    </button>
-                  ))}
+                <div className="px-2.5 py-1.5 text-xs text-on-surface-variant">
+                  <p className="font-semibold text-on-surface">{currentUser.name || 'Signed in'}</p>
+                  <p>{currentUser.phone ? `+91 ${currentUser.phone}` : currentUser.roleLabel}</p>
+                  <p className="mt-1 text-[10px]">Sign out and log in again to change role.</p>
                 </div>
 
                 <div className="border-t border-surface-container-high mt-2 pt-1">

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Facility, PatientRecord } from '../types';
-import { FACILITIES } from '../data/mockData';
 
 interface ReferralsScreenProps {
   patient: PatientRecord;
@@ -12,12 +11,12 @@ interface ReferralsScreenProps {
 
 export const ReferralsScreen: React.FC<ReferralsScreenProps> = ({
   patient,
-  facilities,
+  facilities = [],
   onOpenTracker,
   onIssueReferral,
   showToast
 }) => {
-  const list = facilities && facilities.length > 0 ? facilities : FACILITIES;
+  const list = facilities;
   const [selectedFacilityId, setSelectedFacilityId] = useState<string>(list[0]?.id || '');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -31,7 +30,7 @@ export const ReferralsScreen: React.FC<ReferralsScreenProps> = ({
 
   const handleIssueToken = async () => {
     if (!selectedFacility) {
-      showToast('No facility available');
+      showToast('No facility available from backend');
       return;
     }
     setIsSubmitting(true);
@@ -52,6 +51,21 @@ export const ReferralsScreen: React.FC<ReferralsScreenProps> = ({
     onOpenTracker(selectedFacilityId, issuedTokenId);
   };
 
+  if (!list.length) {
+    return (
+      <div className="flex flex-col w-full pb-28 pt-24 max-w-xl mx-auto px-gutter gap-3">
+        <h2 className="font-title-md text-title-md font-bold text-on-surface">Urgent Referrals</h2>
+        <p className="font-body-md text-body-md text-on-surface-variant">
+          No facilities returned from the API for this district. Check backend seed data or network,
+          then reopen this screen.
+        </p>
+        <p className="font-label-sm text-label-sm text-on-surface-variant">
+          Case: {patient.caseId || '—'} • {patient.name || 'Unnamed patient'}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full pb-28 pt-16 max-w-xl mx-auto">
       {/* Offline / Sync Micro-bar */}
@@ -59,11 +73,11 @@ export const ReferralsScreen: React.FC<ReferralsScreenProps> = ({
         <div className="flex items-center gap-space-xs">
           <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
           <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-            Live Dispatch Link Active
+            Facility list from API
           </span>
         </div>
         <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-          GPS: NH-31 Corridor
+          District registry
         </span>
       </div>
 
@@ -381,7 +395,7 @@ export const ReferralsScreen: React.FC<ReferralsScreenProps> = ({
         <div className="text-center mt-space-xs">
           <p className="font-label-sm text-label-sm text-on-surface-variant opacity-80 flex items-center justify-center gap-1">
             <span className="material-symbols-outlined text-[14px]">cloud_sync</span>
-            <span>Demo availability data simulated from HMIS portal mock</span>
+            <span>Facility capacity from backend registry (not live HMIS)</span>
           </p>
         </div>
       </div>

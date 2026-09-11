@@ -19,26 +19,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onToggleOnline
 }) => {
   const [selectedRoleKey, setSelectedRoleKey] = useState<'asha' | 'facility' | 'cdmo'>('asha');
-  const [phone, setPhone] = useState('9000000001');
-  const [password, setPassword] = useState('ChangeMeDemo123!');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const selectRole = (roleKey: 'asha' | 'facility' | 'cdmo') => {
     setSelectedRoleKey(roleKey);
-    // Passwords match backend SEED_DEMO_PASSWORD default
-    const demoPassword = 'ChangeMeDemo123!';
-    if (roleKey === 'asha') {
-      setPhone('9000000001');
-      setPassword(demoPassword);
-    } else if (roleKey === 'facility') {
-      setPhone('9000000003');
-      setPassword(demoPassword);
-    } else if (roleKey === 'cdmo') {
-      setPhone('9000000004');
-      setPassword(demoPassword);
-    }
+    // Prefill phone only — never embed or autofill the password in the client.
+    if (roleKey === 'asha') setPhone('9000000001');
+    else if (roleKey === 'facility') setPhone('9000000003');
+    else setPhone('9000000004');
+    setPassword('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -327,15 +320,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             </div>
             <div className="flex items-center justify-between pt-1">
               <span className="font-label-sm text-[10px] text-on-surface-variant">
-                Demo password: ChangeMeDemo123! (SEED_DEMO_PASSWORD)
+                Use your issued field credentials
               </span>
-              <button
-                type="button"
-                onClick={() => alert('Demo SMS OTP sent: 4402 (Validated for test pilot)')}
-                className="font-label-sm text-label-sm text-primary font-bold hover:underline"
-              >
-                Use SMS OTP
-              </button>
             </div>
           </div>
 
@@ -372,44 +358,44 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <div className="flex items-center justify-center gap-space-xs pt-1 text-on-surface-variant">
             <span className="material-symbols-outlined text-[16px] text-primary">verified_user</span>
             <span className="font-label-sm text-label-sm text-center">
-              Secured via National Health Stack (ABDM / ABDM-Ready)
+              JWT session • role-scoped API access
             </span>
           </div>
         </form>
 
-        {/* Key Field Metrics / Context Badges */}
+        {/* Capability strip — honest labels only */}
         <div className="grid grid-cols-3 gap-space-xs mb-space-md">
           <div className="bg-surface-container rounded-lg p-2.5 text-center shadow-sm border border-surface-container-high">
             <div className="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">
-              Sync Buffer
+              Offline
             </div>
             <div className="font-headline-sm text-headline-sm text-primary font-bold mt-0.5">
-              18 Rec
+              Queue
             </div>
             <div className="text-[10px] text-on-surface-variant font-medium mt-0.5">
-              Local Storage
+              Local sync buffer
             </div>
           </div>
           <div className="bg-surface-container rounded-lg p-2.5 text-center shadow-sm border border-surface-container-high">
             <div className="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">
-              Triage Level
+              Triage
             </div>
             <div className="font-headline-sm text-headline-sm text-primary font-bold mt-0.5">
-              ICD-11
+              Rules
             </div>
             <div className="text-[10px] text-on-surface-variant font-medium mt-0.5">
-              Rule Engine
+              Deterministic
             </div>
           </div>
           <div className="bg-surface-container rounded-lg p-2.5 text-center shadow-sm border border-surface-container-high">
             <div className="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">
-              Dispatch
+              Referral
             </div>
             <div className="font-headline-sm text-headline-sm text-error font-bold mt-0.5">
-              108 Link
+              Token
             </div>
             <div className="text-[10px] text-on-surface-variant font-medium mt-0.5">
-              Simulated
+              Hash-chain audit
             </div>
           </div>
         </div>
@@ -418,18 +404,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         <div className="bg-surface-container-high text-on-surface-variant rounded-xl p-space-sm shadow-sm flex flex-col gap-1.5 text-center mb-space-sm border border-surface-container-highest">
           <div className="flex items-center justify-center gap-1 text-on-surface font-bold text-label-sm uppercase">
             <span className="material-symbols-outlined text-[16px] text-primary">shield_moon</span>
-            <span>Official Demo Build • Field Test Environment</span>
+            <span>Pilot build • Live API</span>
           </div>
           <p className="font-label-sm text-[11px] leading-snug">
-            Official Demo Build • Simulated 108 Emergency Dispatch &amp; Demo Facility Registry • MoHFW / NHM Field Pilot.
+            Clinical decisions come from the backend rule engine. Tier-2 integrations (108 / ABHA / HMIS)
+            are simulated. Demo seed accounts are documented in the project README — passwords are never
+            embedded in this UI.
           </p>
-          <div className="pt-1 flex items-center justify-center gap-space-md text-[10px] text-on-surface-variant font-semibold">
-            <span>Version 3.4.2-pilot</span>
-            <span>•</span>
-            <span>Device ID: ASHA-UP-4491</span>
-            <span>•</span>
-            <span>Secured AES-256</span>
-          </div>
         </div>
       </div>
     </main>

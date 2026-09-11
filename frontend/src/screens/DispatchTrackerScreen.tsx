@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { PatientRecord, ReferralTokenData, UserProfile } from '../types';
-import { ASSETS, INITIAL_REFERRAL_TOKEN } from '../data/mockData';
+import { ASSETS } from '../data/mockData';
 
 interface DispatchTrackerScreenProps {
   patient: PatientRecord;
   currentUser: UserProfile;
-  onSelectUser: (user: UserProfile) => void;
   showToast: (msg: string) => void;
   referralToken?: ReferralTokenData | null;
   onConfirmArrival?: () => Promise<void>;
@@ -18,14 +17,12 @@ export const DispatchTrackerScreen: React.FC<DispatchTrackerScreenProps> = ({
   referralToken,
   onConfirmArrival,
 }) => {
-  const [tokenData, setTokenData] = useState<ReferralTokenData>(
-    referralToken || INITIAL_REFERRAL_TOKEN,
-  );
+  const [tokenData, setTokenData] = useState<ReferralTokenData | null>(referralToken || null);
   const [isAdmitting, setIsAdmitting] = useState<boolean>(false);
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
 
   useEffect(() => {
-    if (referralToken) setTokenData(referralToken);
+    setTokenData(referralToken || null);
   }, [referralToken]);
 
   const isFacilityStaff = currentUser.role === 'facility';
@@ -39,12 +36,16 @@ export const DispatchTrackerScreen: React.FC<DispatchTrackerScreenProps> = ({
     showToast('Confirming arrival with backend...');
     try {
       await onConfirmArrival();
-      setTokenData((prev) => ({
-        ...prev,
-        isAdmitted: true,
-        currentStep: 4,
-        transitStatus: 'PATIENT ARRIVED & ADMITTED',
-      }));
+      setTokenData((prev) =>
+        prev
+          ? {
+              ...prev,
+              isAdmitted: true,
+              currentStep: 4,
+              transitStatus: 'PATIENT ARRIVED & ADMITTED',
+            }
+          : prev,
+      );
       showToast('Arrival confirmed on referral token');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Confirm failed');
@@ -53,6 +54,25 @@ export const DispatchTrackerScreen: React.FC<DispatchTrackerScreenProps> = ({
     }
   };
 
+  if (!tokenData) {
+    return (
+      <div className="flex flex-col w-full pb-28 pt-24 max-w-xl mx-auto px-gutter gap-3">
+        <h2 className="font-title-md text-title-md font-bold text-on-surface">Referral Tracker</h2>
+        <p className="font-body-md text-body-md text-on-surface-variant">
+          No live referral token yet. Complete intake → triage → issue referral to open tracking.
+        </p>
+        {currentUser.role === 'facility' && (
+          <p className="font-label-sm text-label-sm text-on-surface-variant">
+            Facility staff: confirm arrival only after a token is issued for your facility.
+          </p>
+        )}
+        <p className="font-label-sm text-label-sm text-on-surface-variant">
+          Active case: {patient.caseId || 'none'}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full pb-28 pt-16 max-w-xl mx-auto">
       {/* Live Track Sub-header */}
@@ -60,7 +80,7 @@ export const DispatchTrackerScreen: React.FC<DispatchTrackerScreenProps> = ({
         <div className="flex items-center gap-space-xs">
           <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
           <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">
-            ABDM Live Track
+            Referral Token Track
           </span>
         </div>
         <div className="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-full shadow-sm border border-surface-container-high">
@@ -71,7 +91,7 @@ export const DispatchTrackerScreen: React.FC<DispatchTrackerScreenProps> = ({
             wifi_tethering
           </span>
           <span className="font-label-sm text-label-sm text-primary font-bold">
-            Live Sync • 12s ago
+            Status: {tokenData.transitStatus}
           </span>
         </div>
       </div>

@@ -34,14 +34,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const handleSendBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
     setShowBroadcastModal(false);
-    showToast('High-priority alert broadcasted to 186 field ASHAs!');
+    showToast('Broadcast UI only — not connected to a push service yet');
   };
 
   const handleExport = () => {
-    showToast('Exporting NHM ABDM CSV log package...');
-    setTimeout(() => {
-      showToast('MoHFW Audit Log downloaded successfully.');
-    }, 1200);
+    showToast('Export is not wired to a download endpoint yet');
   };
 
   return (
@@ -54,12 +51,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-container" />
           </span>
           <p className="font-label-sm text-label-sm text-on-surface-variant truncate">
-            Live Sync Active (2 mins ago) • Rural Health Monitoring
+            District dashboard from live API
           </p>
         </div>
         <div className="flex items-center gap-1 bg-surface-container-highest px-space-xs py-0.5 rounded-full shrink-0">
           <span className="material-symbols-outlined text-primary text-[14px]">cell_tower</span>
-          <span className="font-label-sm text-label-sm text-primary font-bold">14 PHCs</span>
+          <span className="font-label-sm text-label-sm text-primary font-bold">
+            {intakeCount} intakes
+          </span>
         </div>
       </div>
 
@@ -103,12 +102,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   ASHA Sanchar Cadre
                 </span>
                 <span className="font-title-md text-title-md font-bold leading-tight">
-                  186 Health Workers Active in Field
+                  {intakeCount} intakes • {redFlagCount} red-flag
                 </span>
               </div>
               <span className="bg-primary-container/85 backdrop-blur-md text-primary-fixed text-label-sm font-label-sm px-2.5 py-1 rounded-full flex items-center gap-1 font-bold border border-primary-fixed/30">
                 <span className="material-symbols-outlined text-[14px]">health_and_safety</span>
-                100% Coverage
+                Live funnel
               </span>
             </div>
           </div>
@@ -326,14 +325,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <span className="font-label-md text-label-md text-error font-bold">
-                  Dropout Safeguard Notice
+                  Referral gap (issued − arrived)
                 </span>
                 <span className="font-label-sm text-label-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold">
-                  8 Cases
+                  {Math.max(0, issued - arrived)} open
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface mt-0.5">
-                8 patients flagged for non-arrival within 6 hours. Auto-assigned to local ASHA workers for immediate home check-in.
+                From live funnel: {issued} issued, {arrived} arrived, {noShow} marked no-show,{' '}
+                {treated} treated.
               </p>
               <div className="mt-space-xs flex gap-space-xs flex-wrap">
                 <button
@@ -341,11 +341,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   onClick={() => setShowDropoutModal(true)}
                   className="px-space-sm py-1 rounded bg-primary-container text-on-primary font-label-sm text-label-sm font-bold min-h-[36px] active:scale-95 transition-transform"
                 >
-                  Dispatch Review (8)
+                  Review open ({Math.max(0, issued - arrived)})
                 </button>
                 <button
                   type="button"
-                  onClick={() => showToast('Opening GIS dropout cluster map for Rampur Sector B...')}
+                  onClick={() => showToast('GIS map is not connected in this build')}
                   className="px-space-sm py-1 rounded bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm min-h-[36px] active:scale-95 transition-transform font-bold"
                 >
                   View Geographic Heatmap
@@ -484,7 +484,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               </h3>
             </div>
             <span className="font-label-sm text-label-sm text-primary-container font-bold">
-              Live (4)
+              Issued {issued}
             </span>
           </div>
 
@@ -498,16 +498,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-label-lg text-label-lg text-on-surface font-bold truncate">
-                    Case #RP-9021 • Sunita Devi (28F)
+                    Red-flag cases (district)
                   </span>
                   <span className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                    Severe Pre-eclampsia • En Route to DH Rampur (ETA 14m)
+                    {redFlagCount} from live dashboard API — open a referral token for case detail
                   </span>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-                chevron_right
-              </span>
             </div>
 
             <div className="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between border border-surface-container-high">
@@ -519,16 +516,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-label-lg text-label-lg text-on-surface font-bold truncate">
-                    Case #RP-9018 • Rajesh Kumar (54M)
+                    Arrivals confirmed
                   </span>
                   <span className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                    COPD Exacerbation • In Transit via 108 Ambulance
+                    {arrived} arrived • {treated} treated • {noShow} no-show
                   </span>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-                chevron_right
-              </span>
             </div>
           </div>
         </div>
@@ -587,7 +581,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             </div>
             <form onSubmit={handleSendBroadcast} className="mt-3 flex flex-col gap-3">
               <p className="text-xs text-on-surface-variant">
-                Will dispatch urgent push alert to all 186 tablets in Rampur district:
+                Will queue a district advisory (UI only — no push backend yet):
               </p>
               <textarea
                 value={broadcastText}

@@ -1,5 +1,11 @@
-const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '')
-  || 'http://localhost:8000';
+const configured = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '');
+
+if (import.meta.env.PROD && !configured) {
+  // Fail loud in production builds instead of silently calling localhost.
+  console.error('VITE_API_BASE_URL is required for production builds');
+}
+
+const BASE = configured || (import.meta.env.PROD ? '' : 'http://localhost:8000');
 
 const TOKEN_KEY = 'swasthya_access_token';
 
@@ -26,6 +32,10 @@ export class ApiError extends Error {
 type ApiOptions = RequestInit & { auth?: boolean };
 
 export async function api<T>(path: string, opts: ApiOptions = {}): Promise<T> {
+  if (!BASE) {
+    throw new ApiError('API base URL is not configured', 0, 'CONFIG_ERROR');
+  }
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...((opts.headers as Record<string, string>) || {}),

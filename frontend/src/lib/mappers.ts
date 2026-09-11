@@ -52,34 +52,40 @@ export function applyTriageToPatient(
     decisionSource: triage.source,
     aiSummaryUnavailable: triage.ai_summary_unavailable,
     reasoningSummary: triage.reasoning_summary,
+    // Vitals only come from intake — never invent clinical numbers here.
     dispatchAlert: {
-      logged: level === 'RED_FLAG',
-      ambulanceTag: level === 'RED_FLAG' ? '108 (simulated log)' : '—',
-      desk: 'Rule engine pathway',
-      etaMinutes: level === 'RED_FLAG' ? 18 : 0,
+      logged: false,
+      ambulanceTag: level === 'RED_FLAG' ? '108 pathway (simulated integration)' : '—',
+      desk: triage.source === 'rule_engine' ? 'Deterministic rule engine' : 'LLM assist (advisory)',
+      etaMinutes: 0,
     },
   };
 }
 
 export function mapFacility(f: FacilityApi, index: number): Facility {
   const stock = f.medicine_stock_json || {};
-  const stockHint = Object.keys(stock).slice(0, 3).join(', ') || 'Stock mock';
+  const stockKeys = Object.keys(stock);
+  const stockHint = stockKeys.length
+    ? stockKeys.slice(0, 3).map((k) => `${k}:${String(stock[k])}`).join(', ')
+    : 'No stock fields reported';
+
   return {
     id: f.id,
     name: f.name,
     type: f.type,
     tier: f.type,
-    distanceKm: Number((2 + index * 1.4).toFixed(1)),
-    travelMins: 12 + index * 8,
+    // Distance is not computed server-side yet — show rank only.
+    distanceKm: index + 1,
+    travelMins: 0,
     route: f.district_id,
-    recommended: f.specialist_available || f.type === 'DH',
+    recommended: Boolean(f.specialist_available) || f.type === 'DH',
     stabilizationOnly: f.type === 'PHC',
     deprioritized: false,
-    icuBeds: f.specialist_available ? 4 : 0,
-    activeDoctor: f.specialist_available ? 'Specialist listed (demo)' : 'General duty (demo)',
+    icuBeds: 0,
+    activeDoctor: f.specialist_available ? 'Specialist capacity flagged' : 'General capacity',
     criticalMedsStock: stockHint,
-    statusValidatedMinsAgo: 5,
-    protocolCode: f.diagnostic_status,
+    statusValidatedMinsAgo: 0,
+    protocolCode: f.diagnostic_status || '—',
     tags: Array.isArray(f.capability_tags) ? f.capability_tags.map(String) : [],
   };
 }
@@ -93,18 +99,18 @@ export function mapReferralToken(
   return {
     tokenId: ref.token_id,
     caseId: ref.case_id,
-    patientName: patient.name,
-    patientAge: patient.age,
-    patientSex: patient.sex,
+    patientName: patient.name || '—',
+    patientAge: patient.age || '—',
+    patientSex: patient.sex || '—',
     abhaId: patient.abhaId || '—',
-    condition: patient.triageTitleEn,
+    condition: patient.triageTitleEn || patient.triageLevel,
     facilityName,
     facilityUnit: facilityName,
     transitStatus: arrived ? 'PATIENT ARRIVED & ADMITTED' : ref.status.toUpperCase(),
-    etaMins: arrived ? 0 : 18,
+    etaMins: 0,
     currentStep: arrived ? 4 : 2,
     isAdmitted: arrived,
-    ambulanceNumber: 'Simulated',
+    ambulanceNumber: '—',
     issuedAt: ref.issued_at,
     statusHistory: ref.status_history || [],
   };
