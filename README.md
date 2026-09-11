@@ -38,4 +38,23 @@ pytest -q
 
 ## Frontend
 
-Not implemented in this repository yet. Contract for the future PWA: [`docs/backend/FRONTEND_BACKEND_CONTRACT.md`](docs/backend/FRONTEND_BACKEND_CONTRACT.md).
+| Item | Detail |
+|---|---|
+| Stack | Vite + React 19 + TypeScript + Tailwind 4 |
+| Layout | [`frontend/`](frontend/) |
+| Contract | [`docs/backend/FRONTEND_BACKEND_CONTRACT.md`](docs/backend/FRONTEND_BACKEND_CONTRACT.md) |
+| UI prompt | [`docs/frontend/UI_UX_DEVELOPER_PROMPT.md`](docs/frontend/UI_UX_DEVELOPER_PROMPT.md) |
+
+### Local setup
+```bash
+# terminal 1 — backend on :8000
+cd backend && docker compose up --build
+
+# terminal 2 — UI on :3000
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Demo login (seed): phone `9000000001` / password `ChangeMeDemo123!`

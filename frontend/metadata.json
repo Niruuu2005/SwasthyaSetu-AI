@@ -1,0 +1,7 @@
+{
+  "name": "SwasthyaSetu AI",
+  "description": "Rural Health Triage & Verified Referral Network (स्वास्थ्य सेतु - राष्ट्रीय स्वास्थ्य मिशन) for frontline ASHA workers, medical officers, and CDMOs.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

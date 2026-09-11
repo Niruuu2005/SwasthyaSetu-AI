@@ -1,0 +1,18 @@
+# Optional Render Blueprint — Static Site for the Vite frontend
+# Dashboard alternative steps are in docs/frontend/RENDER_DEPLOY.md
+services:
+  - type: web
+    name: swasthyasetu-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_DISTRICT_ID
+        value: demo-district

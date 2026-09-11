@@ -14,3 +14,7 @@ htmlcov/
 pgdata/
 *.sqlite3
 .DS_Store
+node_modules/
+frontend/dist/
+frontend/.env
+*.zip
