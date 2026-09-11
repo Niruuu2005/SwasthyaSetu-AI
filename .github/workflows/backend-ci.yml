@@ -1,0 +1,37 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      SECRET_KEY: ci-secret-key-not-for-production-use
+      DATABASE_URL: sqlite+aiosqlite:///:memory:
+      DATABASE_URL_SYNC: sqlite:///:memory:
+      LLM_PROVIDER: mock
+      SEED_DEMO_PASSWORD: ChangeMeDemo123!
+      APP_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check app tests scripts
+      - name: Type check
+        run: mypy app
+      - name: Tests
+        run: pytest -q
