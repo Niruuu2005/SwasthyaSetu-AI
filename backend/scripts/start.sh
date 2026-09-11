@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-# Render provides DATABASE_URL as postgres://... — normalize for SQLAlchemy.
+# Render provides DATABASE_URL as postgres://... — normalize for SQLAlchemy async.
+# DATABASE_URL_SYNC is derived in app.core.config if unset.
 if [ -n "$DATABASE_URL" ]; then
   case "$DATABASE_URL" in
     postgres://*)
@@ -11,10 +12,6 @@ if [ -n "$DATABASE_URL" ]; then
       export DATABASE_URL="postgresql+asyncpg://${DATABASE_URL#postgresql://}"
       ;;
   esac
-fi
-
-if [ -z "$DATABASE_URL_SYNC" ] && [ -n "$DATABASE_URL" ]; then
-  export DATABASE_URL_SYNC="${DATABASE_URL/postgresql+asyncpg:/postgresql+psycopg2:}"
 fi
 
 echo "Running migrations..."
