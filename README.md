@@ -63,8 +63,8 @@ Demo login (seed): phone `9000000001` / password `ChangeMeDemo123!`
 
 | Layer | Host | Notes |
 |-------|------|--------|
-| Frontend | [Vercel](https://swasthyasetu-frontend-nine.vercel.app) | Set `VITE_API_BASE_URL` to the Render API URL, then redeploy |
-| Backend | Render Web Service | Blueprint: [`render.yaml`](render.yaml) — see [`docs/backend/RENDER_DEPLOY.md`](docs/backend/RENDER_DEPLOY.md) |
-| Database | Render Postgres | Linked via `DATABASE_URL` |
+| Frontend | [Vercel](https://swasthyasetu-frontend-nine.vercel.app) | `VITE_API_BASE_URL` → Render API |
+| Backend | [Render API](https://swasthyasetu-api-xug9.onrender.com) | Docker + Postgres; see [`docs/backend/RENDER_DEPLOY.md`](docs/backend/RENDER_DEPLOY.md) |
+| Database | Render Postgres `swasthyasetu-db` | Free tier expires ~30 days unless upgraded |
 
 Optional static frontend on Render: [`docs/frontend/RENDER_DEPLOY.md`](docs/frontend/RENDER_DEPLOY.md).

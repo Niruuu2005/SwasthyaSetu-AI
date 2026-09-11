@@ -5,8 +5,8 @@
 | Layer | Host | URL |
 |-------|------|-----|
 | Frontend (Vite) | Vercel | https://swasthyasetu-frontend-nine.vercel.app |
-| Backend (FastAPI) | Render Web Service | `https://swasthyasetu-api.onrender.com` (exact subdomain after create) |
-| Database | Render Postgres | Internal `DATABASE_URL` |
+| Backend (FastAPI) | Render Web Service | https://swasthyasetu-api-xug9.onrender.com |
+| Database | Render Postgres | `swasthyasetu-db` (internal `DATABASE_URL`) |
 
 Repo: https://github.com/Niruuu2005/SwasthyaSetu-AI
 
