@@ -45,6 +45,17 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     register_exception_handlers(app)
     app.include_router(api_router)
+
+    @app.get("/", tags=["root"])
+    async def root() -> dict[str, str]:
+        return {
+            "service": settings.app_name,
+            "status": "ok",
+            "health": "/api/v1/health",
+            "docs": "/docs",
+            "openapi": "/openapi.json",
+        }
+
     return app
 
 
