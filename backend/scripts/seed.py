@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.core.security import hash_password
-from app.db.session import SessionLocal, init_db
+from app.db import session as db
 from app.models import Facility, User
 from app.models.enums import UserRole
 
@@ -18,9 +18,9 @@ DISTRICT = "demo-district"
 
 async def seed() -> None:
     settings = get_settings()
-    init_db()
-    assert SessionLocal is not None
-    async with SessionLocal() as session:
+    db.init_db()
+    assert db.SessionLocal is not None
+    async with db.SessionLocal() as session:
         existing = await session.execute(select(User).limit(1))
         if existing.scalar_one_or_none():
             print("Seed skipped: users already present")
